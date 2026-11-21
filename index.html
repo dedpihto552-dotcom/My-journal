@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Дневник трейдера — BingX (прототип)</title>
+<style>
+  :root{
+    --bg:#0d1117; --card:#161b22; --card2:#1c2230; --line:#2a3240;
+    --txt:#e6edf3; --mut:#8b949e; --grn:#3fb950; --red:#f85149;
+    --acc:#2f81f7; --warn:#d29922;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+       font-size:15px;line-height:1.45;padding-bottom:40px}
+  header{padding:14px 16px 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  h1{font-size:17px;margin:0;font-weight:600}
+  .badge{font-size:10px;padding:2px 7px;border-radius:20px;background:#3d2b00;
+         color:var(--warn);border:1px solid #5c4300;text-transform:uppercase;letter-spacing:.4px}
+  .disc{font-size:11.5px;color:var(--mut);background:#151a21;border-bottom:1px solid var(--line);
+        padding:8px 16px}
+  nav{display:flex;gap:6px;padding:10px 12px;overflow-x:auto;border-bottom:1px solid var(--line);
+      position:sticky;top:0;background:var(--bg);z-index:10}
+  nav button{background:var(--card);color:var(--mut);border:1px solid var(--line);
+      padding:8px 13px;border-radius:9px;font-size:13px;white-space:nowrap;cursor:pointer;font-family:inherit}
+  nav button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+  main{padding:14px;max-width:760px;margin:0 auto}
+  .view{display:none} .view.on{display:block}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+  .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);
+           margin:0 0 12px;font-weight:600}
+  label{display:block;font-size:12px;color:var(--mut);margin-bottom:4px}
+  input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--txt);
+      border-radius:8px;padding:9px 10px;font-size:14px;font-family:inherit}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .fld{margin-bottom:10px}
+  .btn{background:var(--acc);color:#fff;border:none;padding:11px 16px;border-radius:9px;
+       font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;width:100%}
+  .btn.sec{background:var(--card2);border:1px solid var(--line);color:var(--txt);font-weight:500}
+  .btn.sm{width:auto;padding:7px 12px;font-size:12.5px}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .trade{background:var(--card2);border:1px solid var(--line);border-radius:10px;
+         padding:11px 12px;margin-bottom:8px;border-left:3px solid var(--line)}
+  .trade.win{border-left-color:var(--grn)} .trade.loss{border-left-color:var(--red)}
+  .trade.open{border-left-color:var(--warn)}
+  .tline{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .tpair{font-weight:600;font-size:14px}
+  .tres{font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+  .grn{color:var(--grn)} .red{color:var(--red)} .mut{color:var(--mut)} .warn{color:var(--warn)}
+  .tmeta{font-size:11.5px;color:var(--mut);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+  .tag{background:#212836;padding:1px 6px;border-radius:5px;font-size:10.5px}
+  .del{background:none;border:none;color:var(--mut);cursor:pointer;font-size:15px;padding:2px 6px}
+  .del:hover{color:var(--red)}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .stat{background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .stat .k{font-size:11px;color:var(--mut);margin-bottom:3px}
+  .stat .v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+  .calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .calhead span{font-weight:600;font-size:14px}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cal .dow{font-size:10px;color:var(--mut);text-align:center;padding:2px 0}
+  .day{aspect-ratio:1;border-radius:7px;background:#12171f;border:1px solid #1e2530;
+       font-size:10.5px;padding:3px;display:flex;flex-direction:column;justify-content:space-between;
+       cursor:pointer;overflow:hidden}
+  .day.empty{background:none;border:none;cursor:default}
+  .day .n{color:var(--mut);font-size:9.5px}
+  .day .p{font-weight:700;font-size:9.5px;font-variant-numeric:tabular-nums}
+  .sig{border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin-bottom:9px;background:var(--card2)}
+  .sig.hi{border-color:#5c3a00;background:#1d1809}
+  .sigtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+  .meter{height:5px;background:#0d1117;border-radius:4px;overflow:hidden;margin:7px 0 5px}
+  .meter i{display:block;height:100%;border-radius:4px}
+  .legend{font-size:11.5px;color:var(--mut)}
+  .legend b{color:var(--txt)}
+  .empty{text-align:center;color:var(--mut);font-size:13px;padding:22px 10px}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt);margin:10px 0}
+  .chk input{width:auto}
+  .hint{font-size:11.5px;color:var(--mut);margin-top:6px}
+  details summary{cursor:pointer;color:var(--acc);font-size:12.5px;margin-top:8px}
+  details p{font-size:12px;color:var(--mut);margin:6px 0 0}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📓 Дневник трейдера</h1>
+  <span class="badge">прототип</span>
+</header>
+<div class="disc">
+  Это демо-прототип. Сигналы сгенерированы случайно и не являются торговыми рекомендациями.
+  Данные хранятся только в этом браузере. Не финансовый совет.
+</div>
+
+<nav>
+  <button class="on" data-v="journal">Журнал</button>
+  <button data-v="calendar">Календарь</button>
+  <button data-v="stats">Статистика</button>
+  <button data-v="signals">Сигналы (демо)</button>
+  <button data-v="settings">Настройки</button>
+</nav>
+
+<main>
+
+<!-- ЖУРНАЛ -->
+<section class="view on" id="v-journal">
+  <div class="card">
+    <h2 id="formTitle">Новая сделка</h2>
+    <div class="grid2">
+      <div class="fld"><label>Дата</label><input type="date" id="f-date"></div>
+      <div class="fld"><label>Пара</label><input id="f-pair" placeholder="BTC/USDT" value="BTC/USDT"></div>
+    </div>
+    <div class="grid2">
+      <div class="fld"><label>Направление</label>
+        <select id="f-side"><option value="long">Лонг</option><option value="short">Шорт</option></select></div>
+      <div class="fld"><label>Стратегия</label>
+        <select id="f-strategy">
+          <option>Пробой</option><option>Откат</option><option>Скальп</option>
+          <option>По тренду</option><option>Новости</option><option>Другое</option>
+        </select></div>
+    </div>
+    <div class="grid3">
+      <div class="fld"><label>Вход</label><input type="number" step="any" id="f-entry" placeholder="0"></div>
+      <div class="fld"><label>Выход</label><input type="number" step="any" id="f-exit" placeholder="пусто = открыта"></div>
+      <div class="fld"><label>Плечо</label><input type="number" step="any" id="f-lev" value="1"></div>
+    </div>
+    <div class="grid3">
+      <div class="fld"><label>Маржа, USDT</label><input type="number" step="any" id="f-margin" placeholder="100"></div>
+      <div class="fld"><label>Комиссия, %</label><input type="number" step="any" id="f-fee" value="0.05"></div>
+      <div class="fld"><label>Фандинг, USDT</label><input type="number" step="any" id="f-funding" value="0"></div>
+    </div>
+    <div class="fld"><label>Эмоция</label>
+      <select id="f-emotion">
+        <option>Спокоен</option><option>Уверен</option><option>FOMO</option>
+        <option>Страх</option><option>Жадность</option><option>Месть</option>
+      </select></div>
+    <div class="fld"><label>Заметка</label><textarea id="f-note" rows="2" placeholder="Почему вошёл? Что видел?"></textarea></div>
+    <div class="row">
+      <button class="btn" id="saveBtn">Сохранить</button>
+      <button class="btn sec sm" id="cancelEdit" style="display:none">Отмена</button>
+    </div>
+    <div class="hint" id="preview"></div>
+  </div>
+
+  <div class="card">
+    <h2>Мои сделки</h2>
+    <div class="grid2" style="margin-bottom:10px">
+      <input id="q" placeholder="Поиск по паре...">
+      <select id="fe">
+        <option value="">Все эмоции</option>
+        <option>Спокоен</option><option>Уверен</option><option>FOMO</option>
+        <option>Страх</option><option>Жадность</option><option>Месть</option>
+      </select>
+    </div>
+    <div id="list"></div>
+  </div>
+</section>
+
+<!-- КАЛЕНДАРЬ -->
+<section class="view" id="v-calendar">
+  <div class="card">
+    <div class="calhead">
+      <button class="btn sec sm" id="calPrev">‹</button>
+      <span id="calTitle"></span>
+      <button class="btn sec sm" id="calNext">›</button>
+    </div>
+    <div class="cal" id="cal"></div>
+    <div class="hint">Зелёный — плюс за день, красный — минус. Нажми на день, чтобы отфильтровать журнал.</div>
+  </div>
+</section>
+
+<!-- СТАТИСТИКА -->
+<section class="view" id="v-stats">
+  <div class="card">
+    <h2>Общие показатели</h2>
+    <div class="stats" id="stats"></div>
+  </div>
+</section>
+
+<!-- СИГНАЛЫ -->
+<section class="view" id="v-signals">
+  <div class="card">
+    <h2>Лента сигналов <span class="badge">демо-данные</span></h2>
+    <div class="row" style="margin-bottom:10px">
+      <button class="btn sm" id="refreshSig">Обновить</button>
+      <label class="chk" style="margin:0"><input type="checkbox" id="onlyHi"> только высокий риск</label>
+    </div>
+    <div id="sigList"></div>
+    <details>
+      <summary>Что означают эти сигналы?</summary>
+      <p><b>RSI</b> — индикатор перекупленности/перепроданности. Выше 70 — рынок «перегрет» вверх, ниже 30 — вниз.</p>
+      <p><b>Паттерн</b> — свечная фигура (двойная вершина, голова и плечи и т.п.), которая часто предшествует развороту.</p>
+      <p><b>Новостной фон</b> — тональность последних новостей и соцсетей по активу.</p>
+      <p><b>Риск разворота</b> — сводная оценка. В реальном приложении она сравнивается с направлением твоей позиции: если ты в лонге, а риск разворота вниз высокий — это повод проверить позицию.</p>
+      <p>Здесь все значения случайны. Это макет интерфейса, а не аналитика.</p>
+    </details>
+  </div>
+</section>
+
+<!-- НАСТРОЙКИ -->
+<section class="view" id="v-settings">
+  <div class="card">
+    <h2>Депозит и риск</h2>
+    <div class="grid2">
+      <div class="fld"><label>Депозит, USDT</label><input type="number" step="any" id="s-dep" ></div>
+      <div class="fld"><label>Риск на сделку, %</label><input type="number" step="any" id="s-risk"></div>
+    </div>
+    <div class="fld"><label>Комиссия по умолчанию, %</label><input type="number" step="any" id="s-fee"></div>
+    <button class="btn sec sm" id="saveSettings">Сохранить настройки</button>
+  </div>
+
+  <div class="card">
+    <h2>Калькулятор позиции</h2>
+    <div class="grid3">
+      <div class="fld"><label>Вход</label><input type="number" step="any" id="c-entry" placeholder="0"></div>
+      <div class="fld"><label>Стоп</label><input type="number" step="any" id="c-stop" placeholder="0"></div>
+      <div class="fld"><label>Плечо</label><input type="number" step="any" id="c-lev" value="1"></div>
+    </div>
+    <div class="hint" id="calcOut">Заполни вход и стоп — покажу размер позиции под твой риск.</div>
+  </div>
+
+  <div class="card">
+    <h2>Данные</h2>
+    <div class="row">
+      <button class="btn sec sm" id="exportCsv">Экспорт CSV</button>
+      <button class="btn sec sm" id="clearAll">Очистить всё</button>
+    </div>
+    <div class="hint">Экспорт пригодится, когда переедем на настоящее приложение.</div>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ---------- состояние ---------- */
+const LS='dz_journal_v1';
+const DEF={trades:[],settings:{deposit:1000,risk:1,fee:0.05}};
+let S=loadState(), editingId=null, calMonth=new Date(), dayFilter=null;
+
+function loadState(){
+  try{
+    const r=JSON.parse(localStorage.getItem(LS));
+    if(r&&Array.isArray(r.trades)) return {trades:r.trades,settings:Object.assign({},DEF.settings,r.settings||{})};
+  }catch(e){}
+  return JSON.parse(JSON.stringify(DEF));
+}
+function saveState(){ localStorage.setItem(LS,JSON.stringify(S)); }
+
+/* ---------- расчёты ---------- */
+function calc(t){
+  const margin=+t.margin||0, lev=+t.leverage||1, e=+t.entry||0, x=+t.exit;
+  const notional=margin*lev;
+  const dir=t.side==='long'?1:-1;
+  const fees=notional*((+t.feeRate||0)/100)*2;
+  const funding=+t.funding||0;
+  if(!x||!e) return {open:true,net:0,pct:0,fees,funding,notional,gross:0};
+  const gross=(x-e)/e*notional*dir;
+  const net=gross-fees-funding;
+  return {open:false,net,pct:margin?net/margin*100:0,fees,funding,notional,gross};
+}
+const money=n=>(n>=0?'+':'−')+'$'+Math.abs(n).toFixed(2);
+const cls=n=>n>0?'grn':n<0?'red':'mut';
+const todayStr=()=>new Date().toISOString().slice(0,10);
+
+/* ---------- навигация ---------- */
+document.querySelectorAll('nav button').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+    document.getElementById('v-'+b.dataset.v).classList.add('on');
+    if(b.dataset.v==='calendar') renderCalendar();
+    if(b.dataset.v==='stats') renderStats();
+    if(b.dataset.v==='signals'&&!document.getElementById('sigList').children.length) renderSignals();
+  };
+});
+
+/* ---------- форма ---------- */
+const $=id=>document.getElementById(id);
+$('f-date').value=todayStr();
+$('f-fee').value=S.settings.fee;
+
+$('saveBtn').onclick=()=>{
+  const t={
+    id: editingId||('t'+Date.now()),
+    date: $('f-date').value||todayStr(),
+    pair: ($('f-pair').value||'—').toUpperCase().trim(),
+    side: $('f-side').value,
+    entry: $('f-entry').value,
+    exit: $('f-exit').value,
+    leverage: $('f-lev').value||1,
+    margin: $('f-margin').value,
+    feeRate: $('f-fee').value||0,
+    funding: $('f-funding').value||0,
+    strategy: $('f-strategy').value,
+    emotion: $('f-emotion').value,
+    note: $('f-note').value.trim()
+  };
+  if(!t.margin||!t.entry){ alert('Нужны хотя бы маржа и цена входа.'); return; }
+  if(editingId){
+    const i=S.trades.findIndex(x=>x.id===editingId);
+    if(i>-1) S.trades[i]=t;
+    resetForm();
+  }else{
+    S.trades.unshift(t);
+  }
+  saveState(); renderAll();
+};
+
+$('cancelEdit').onclick=resetForm;
+
+function resetForm(){
+  editingId=null;
+  $('formTitle').textContent='Новая сделка';
+  $('saveBtn').textContent='Сохранить';
+  $('cancelEdit').style.display='none';
+  ['f-pair','f-entry','f-exit','f-margin','f-note'].forEach(i=>$(i).value='');
+  $('f-lev').value=1; $('f-funding').value=0; $('f-date').value=todayStr();
+  $('f-fee').value=S.settings.fee; $('preview').textContent='';
+}
+
+/* живой превью PnL */
+['f-entry','f-exit','f-lev','f-margin','f-fee','f-funding','f-side'].forEach(id=>{
+  $(id).addEventListener('input',()=>{
+    const c=calc({entry:$('f-entry').value,exit:$('f-exit').value,leverage:$('f-lev').value,
+      margin:$('f-margin').value,feeRate:$('f-fee').value,funding:$('f-funding').value,side:$('f-side').value});
+    if(c.open){ $('preview').textContent='Сделка открыта — PnL появится после выхода.'; return; }
+    $('preview').innerHTML='Чистый PnL: <b class="'+cls(c.net)+'">'+money(c.net)+
+      '</b> ('+c.pct.toFixed(1)+'% от маржи) · комиссии $'+c.fees.toFixed(2)+
+      ' · фандинг $'+c.funding.toFixed(2);
+  });
+});
+
+/* ---------- список ---------- */
+function renderList(){
+  const q=$('q').value.toLowerCase().trim(), fe=$('fe').value;
+  let arr=S.trades.slice();
+  if(q) arr=arr.filter(t=>t.pair.toLowerCase().includes(q));
+  if(fe) arr=arr.filter(t=>t.emotion===fe);
+  if(dayFilter) arr=arr.filter(t=>t.date===dayFilter);
+
+  const el=$('list');
+  if(!arr.length){ el.innerHTML='<div class="empty">Пока пусто. Добавь первую сделку ↑</div>'; return; }
+
+  el.innerHTML=arr.map(t=>{
+    const c=calc(t);
+    const sideTxt=t.side==='long'?'Лонг':'Шорт';
+    return `<div class="trade ${c.open?'open':c.net>0?'win':'loss'}">
+      <div class="tline">
+        <div>
+          <span class="tpair">${t.pair}</span>
+          <span class="mut" style="font-size:12px"> · ${sideTxt} ×${t.leverage} · ${t.date}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:2px">
+          <span class="tres ${c.open?'warn':cls(c.net)}">${c.open?'открыта':money(c.net)}</span>
+          <button class="del" data-edit="${t.id}" title="Изменить">✎</button>
+          <button class="del" data-del="${t.id}" title="Удалить">×</button>
+        </div>
+      </div>
+      <div class="tmeta">
+        <span>вход ${t.entry}${t.exit?' → '+t.exit:''}</span>
+        <span>маржа $${(+t.margin).toFixed(2)}</span>
+        ${!c.open?`<span class="${cls(c.net)}">${c.pct.toFixed(1)}%</span>`:''}
+        <span class="tag">${t.strategy}</span>
+        <span class="tag">${t.emotion}</span>
+      </div>
+      ${t.note?`<div class="tmeta" style="margin-top:6px;color:#a9b4c0">${esc(t.note)}</div>`:''}
+    </div>`;
+  }).join('');
+
+  el.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{
+    if(!confirm('Удалить сделку?')) return;
+    S.trades=S.trades.filter(t=>t.id!==b.dataset.del);
+    saveState(); renderAll();
+  });
+  el.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
+    const t=S.trades.find(x=>x.id===b.dataset.edit); if(!t) return;
+    editingId=t.id;
+    $('f-date').value=t.date; $('f-pair').value=t.pair; $('f-side').value=t.side;
+    $('f-strategy').value=t.strategy; $('f-entry').value=t.entry; $('f-exit').value=t.exit||'';
+    $('f-lev').value=t.leverage; $('f-margin').value=t.margin; $('f-fee').value=t.feeRate;
+    $('f-funding').value=t.funding; $('f-emotion').value=t.emotion; $('f-note').value=t.note||'';
+    $('formTitle').textContent='Редактирование сделки';
+    $('saveBtn').textContent='Обновить';
+    $('cancelEdit').style.display='inline-block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+}
+$('q').oninput=renderList; $('fe').onchange=renderList;
+function esc(s){return s.replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+
+/* ---------- календарь ---------- */
+function dailyMap(){
+  const m={};
+  S.trades.forEach(t=>{ const c=calc(t); if(c.open) return; m[t.date]=(m[t.date]||0)+c.net; });
+  return m;
+}
+function renderCalendar(){
+  const y=calMonth.getFullYear(), mo=calMonth.getMonth();
+  $('calTitle').textContent=calMonth.toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+  const first=new Date(y,mo,1), start=(first.getDay()+6)%7, days=new Date(y,mo+1,0).getDate();
+  const map=dailyMap();
+  let html=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d=>`<div class="dow">${d}</div>`).join('');
+  for(let i=0;i<start;i++) html+='<div class="day empty"></div>';
+  let sum=0;
+  for(let d=1;d<=days;d++){
+    const ds=`${y}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const v=map[ds]; if(v) sum+=v;
+    let bg='#12171f', bd='#1e2530';
+    if(v!==undefined){
+      if(v>0){const a=Math.min(0.85,0.18+Math.abs(v)/200);bg=`rgba(63,185,80,${a})`;bd='#2d6a37';}
+      else if(v<0){const a=Math.min(0.85,0.18+Math.abs(v)/200);bg=`rgba(248,81,73,${a})`;bd='#7d2b28';}
+    }
+    html+=`<div class="day" data-d="${ds}" style="background:${bg};border-color:${bd}">
+      <span class="n">${d}</span>${v!==undefined?`<span class="p">${v>0?'+':''}${v.toFixed(0)}$</span>`:''}</div>`;
+  }
+  $('cal').innerHTML=html;
+  $('cal').querySelectorAll('[data-d]').forEach(el=>el.onclick=()=>{
+    dayFilter=dayFilter===el.dataset.d?null:el.dataset.d;
+    document.querySelector('nav button[data-v="journal"]').click();
+    renderList();
+  });
+  $('calTitle').textContent+=` · итог: ${sum>=0?'+':''}$${sum.toFixed(0)}`;
+}
+$('calPrev').onclick=()=>{calMonth=new Date(calMonth.getFullYear(),calMonth.getMonth()-1,1);renderCalendar();};
+$('calNext').onclick=()=>{calMonth=new Date(calMonth.getFullYear(),calMonth.getMonth()+1,1);renderCalendar();};
+
+/* ---------- статистика ---------- */
+function renderStats(){
+  const closed=S.trades.map(t=>({t,c:calc(t)})).filter(x=>!x.c.open);
+  const el=$('stats');
+  if(!closed.length){ el.innerHTML='<div class="empty" style="grid-column:1/-1">Нет закрытых сделок для статистики.</div>'; return; }
+  const nets=closed.map(x=>x.c.net);
+  const wins=nets.filter(n=>n>0), losses=nets.filter(n=>n<0);
+  const total=nets.reduce((a,b)=>a+b,0);
+  const wr=wins.length/closed.length*100;
+  const pf=losses.length?wins.reduce((a,b)=>a+b,0)/Math.abs(losses.reduce((a,b)=>a+b,0)):Infinity;
+  const avgW=wins.length?wins.reduce((a,b)=>a+b,0)/wins.length:0;
+  const avgL=losses.length?losses.reduce((a,b)=>a+b,0)/losses.length:0;
+  const dm=dailyMap();
+  const days=Object.entries(dm).sort((a,b)=>b[1]-a[1]);
+  const fees=closed.reduce((a,x)=>a+x.c.fees,0);
+
+  // серии
+  const sorted=closed.slice().sort((a,b)=>a.t.date<b.t.date?-1:1);
+  let mw=0,ml=0,cw=0,cl=0;
+  sorted.forEach(x=>{ if(x.c.net>0){cw++;cl=0;} else if(x.c.net<0){cl++;cw=0;} mw=Math.max(mw,cw);ml=Math.max(ml,cl); });
+
+  const card=(k,v,c='')=>`<div class="stat"><div class="k">${k}</div><div class="v ${c}">${v}</div></div>`;
+  el.innerHTML=
+    card('Чистый PnL',money(total),cls(total))+
+    card('Сделок',closed.length)+
+    card('Win rate',wr.toFixed(1)+'%',wr>=50?'grn':'red')+
+    card('Profit factor',pf===Infinity?'∞':pf.toFixed(2),pf>=1.5?'grn':pf>=1?'warn':'red')+
+    card('Средний вин',money(avgW),'grn')+
+    card('Средний луз',money(avgL),'red')+
+    card('Лучший день',days[0]?days[0][0].slice(5)+' · '+money(days[0][1]):'—','grn')+
+    card('Худший день',days.length?days[days.length-1][0].slice(5)+' · '+money(days[days.length-1][1]):'—','red')+
+    card('Серия побед',mw)+
+    card('Серия лузов',ml)+
+    card('Комиссии',money(-fees),'red')+
+    card('Ср. плечо',(closed.reduce((a,x)=>a+(+x.t.leverage||1),0)/closed.length).toFixed(1)+'x');
+}
+
+/* ---------- сигналы (демо) ---------- */
+const PAIRS=['BTC/USDT','ETH/USDT','SOL/USDT','XRP/USDT','DOGE/USDT','LINK/USDT','AVAX/USDT'];
+const PATTERNS=['Нет','Двойная вершина','Двойное дно','Голова и плечи','Восходящий клин','Медвежий дивергенс','Бычий дивергенс'];
+function renderSignals(){
+  const onlyHi=$('onlyHi').checked;
+  const rows=PAIRS.map(p=>{
+    const rsi=Math.round(20+Math.random()*65);
+    const pattern=PATTERNS[Math.floor(Math.random()*PATTERNS.length)];
+    const news=+(Math.random()*2-1).toFixed(2);
+    let risk=0;
+    if(rsi>70) risk+=30; else if(rsi>65) risk+=15;
+    if(rsi<30) risk+=30; else if(rsi<35) risk+=15;
+    risk+={'Двойная вершина':30,'Голова и плечи':30,'Двойное дно':25,'Медвежий дивергенс':25,'Бычий дивергенс':20,'Восходящий клин':15,'Нет':0}[pattern]||0;
+    if(news<0) risk+=Math.min(25,Math.abs(news)*30);
+    risk=Math.min(100,Math.round(risk));
+    return {p,rsi,pattern,news,risk};
+  }).filter(r=>!onlyHi||r.risk>=55).sort((a,b)=>b.risk-a.risk);
+
+  const el=$('sigList');
+  if(!rows.length){ el.innerHTML='<div class="empty">Нет сигналов с высоким риском.</div>'; return; }
+  el.innerHTML=rows.map(r=>{
+    const col=r.risk>=70?'#f85149':r.risk>=45?'#d29922':'#3fb950';
+    const nl=r.news<-0.2?'<span class="red">негативный</span>':r.news>0.2?'<span class="grn">
