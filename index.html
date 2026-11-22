@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Дневник трейдера — BingX (прототип)</title>
+<title>Дневник трейдера — BingX</title>
 <style>
   :root{
     --bg:#0d1117; --card:#161b22; --card2:#1c2230; --line:#2a3240;
@@ -35,7 +35,7 @@
       border-radius:8px;padding:9px 10px;font-size:14px;font-family:inherit}
   input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc)}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
   .fld{margin-bottom:10px}
   .btn{background:var(--acc);color:#fff;border:none;padding:11px 16px;border-radius:9px;
        font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;width:100%}
@@ -73,8 +73,6 @@
   .sigtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
   .meter{height:5px;background:#0d1117;border-radius:4px;overflow:hidden;margin:7px 0 5px}
   .meter i{display:block;height:100%;border-radius:4px}
-  .legend{font-size:11.5px;color:var(--mut)}
-  .legend b{color:var(--txt)}
   .empty{text-align:center;color:var(--mut);font-size:13px;padding:22px 10px}
   .chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt);margin:10px 0}
   .chk input{width:auto}
@@ -87,12 +85,8 @@
 
 <header>
   <h1>📓 Дневник трейдера</h1>
-  <span class="badge">прототип</span>
+  <span class="badge">BingX Edition</span>
 </header>
-<div class="disc">
-  Это демо-прототип. Сигналы сгенерированы случайно и не являются торговыми рекомендациями.
-  Данные хранятся только в этом браузере. Не финансовый совет.
-</div>
 
 <nav>
   <button class="on" data-v="journal">Журнал</button>
@@ -107,10 +101,12 @@
 <section class="view on" id="v-journal">
   <div class="card">
     <h2 id="formTitle">Новая сделка</h2>
+    
     <div class="grid2">
       <div class="fld"><label>Дата</label><input type="date" id="f-date"></div>
       <div class="fld"><label>Пара</label><input id="f-pair" placeholder="BTC/USDT" value="BTC/USDT"></div>
     </div>
+    
     <div class="grid2">
       <div class="fld"><label>Направление</label>
         <select id="f-side"><option value="long">Лонг</option><option value="short">Шорт</option></select></div>
@@ -120,31 +116,41 @@
           <option>По тренду</option><option>Новости</option><option>Другое</option>
         </select></div>
     </div>
-    <div class="grid3">
+
+    <div class="grid4">
       <div class="fld"><label>Вход</label><input type="number" step="any" id="f-entry" placeholder="0"></div>
-      <div class="fld"><label>Выход</label><input type="number" step="any" id="f-exit" placeholder="пусто = открыта"></div>
-      <div class="fld"><label>Плечо</label><input type="number" step="any" id="f-lev" value="1"></div>
+      <div class="fld"><label>Стоп-лосс</label><input type="number" step="any" id="f-stop" placeholder="0"></div>
+      <div class="fld"><label>План. выход (Тейк)</label><input type="number" step="any" id="f-target" placeholder="0"></div>
+      <div class="fld"><label>Факт. выход</label><input type="number" step="any" id="f-exit" placeholder="пусто = открыта"></div>
     </div>
+
     <div class="grid3">
       <div class="fld"><label>Маржа, USDT</label><input type="number" step="any" id="f-margin" placeholder="100"></div>
+      <div class="fld"><label>Плечо</label><input type="number" step="any" id="f-lev" value="1"></div>
       <div class="fld"><label>Комиссия, %</label><input type="number" step="any" id="f-fee" value="0.05"></div>
+    </div>
+
+    <div class="grid2">
+      <div class="fld"><label>Эмоция при входе</label>
+        <select id="f-emotion">
+          <option>Спокоен</option><option>Уверен</option><option>FOMO</option>
+          <option>Страх</option><option>Жадность</option><option>Месть</option>
+        </select></div>
       <div class="fld"><label>Фандинг, USDT</label><input type="number" step="any" id="f-funding" value="0"></div>
     </div>
-    <div class="fld"><label>Эмоция</label>
-      <select id="f-emotion">
-        <option>Спокоен</option><option>Уверен</option><option>FOMO</option>
-        <option>Страх</option><option>Жадность</option><option>Месть</option>
-      </select></div>
-    <div class="fld"><label>Заметка</label><textarea id="f-note" rows="2" placeholder="Почему вошёл? Что видел?"></textarea></div>
+
+    <div class="fld"><label>План на сделку (Почему вошёл?)</label><textarea id="f-note" rows="2" placeholder="Что увидел на графике?"></textarea></div>
+    <div class="fld"><label>Анализ ситуации (Почему так вышло?)</label><textarea id="f-analysis" rows="2" placeholder="Отработал план или вышел раньше? Ошибся в чём?"></textarea></div>
+    
     <div class="row">
       <button class="btn" id="saveBtn">Сохранить</button>
       <button class="btn sec sm" id="cancelEdit" style="display:none">Отмена</button>
     </div>
-    <div class="hint" id="preview"></div>
+    <div class="hint" id="preview" style="font-size:13px; color:var(--txt); margin-top:10px;"></div>
   </div>
 
   <div class="card">
-    <h2>Мои сделки</h2>
+    <h2>История сделок</h2>
     <div class="grid2" style="margin-bottom:10px">
       <input id="q" placeholder="Поиск по паре...">
       <select id="fe">
@@ -165,7 +171,7 @@
       <button class="btn sec sm" id="calNext">›</button>
     </div>
     <div class="cal" id="cal"></div>
-    <div class="hint">Зелёный — плюс за день, красный — минус. Нажми на день, чтобы отфильтровать журнал.</div>
+    <div class="hint">Зелёный — плюс за день, красный — минус. Нажми на день для фильтра.</div>
   </div>
 </section>
 
@@ -181,17 +187,9 @@
     <h2>Лента сигналов <span class="badge">демо-данные</span></h2>
     <div class="row" style="margin-bottom:10px">
       <button class="btn sm" id="refreshSig">Обновить</button>
-      <label class="chk" style="margin:0"><input type="checkbox" id="onlyHi"> только высокий риск</label>
     </div>
     <div id="sigList"></div>
-    <details>
-      <summary>Что означают эти сигналы?</summary>
-      <p><b>RSI</b> — индикатор перекупленности/перепроданности. Выше 70 — рынок «перегрет» вверх, ниже 30 — вниз.</p>
-      <p><b>Паттерн</b> — свечная фигура (двойная вершина, голова и плечи и т.п.), которая часто предшествует развороту.</p>
-      <p><b>Новостной фон</b> — тональность последних новостей и соцсетей по активу.</p>
-      <p><b>Риск разворота</b> — сводная оценка. В реальном приложении она сравнивается с направлением твоей позиции: если ты в лонге, а риск разворота вниз высокий — это повод проверить позицию.</p>
-      <p>Здесь все значения случайны. Это макет интерфейса, а не аналитика.</p>
-    </details>
+    <div class="hint" style="margin-top:15px;">В будущем здесь будут реальные данные с BingX.</div>
   </div>
 </section>
 
@@ -213,7 +211,7 @@
       <div class="fld"><label>Стоп</label><input type="number" step="any" id="c-stop" placeholder="0"></div>
       <div class="fld"><label>Плечо</label><input type="number" step="any" id="c-lev" value="1"></div>
     </div>
-    <div class="hint" id="calcOut">Заполни вход и стоп — покажу размер позиции под твой риск.</div>
+    <div class="hint" id="calcOut">Заполни вход и стоп — покажу размер позиции.</div>
   </div>
 
   <div class="card">
@@ -222,14 +220,13 @@
       <button class="btn sec sm" id="exportCsv">Экспорт CSV</button>
       <button class="btn sec sm" id="clearAll">Очистить всё</button>
     </div>
-    <div class="hint">Экспорт пригодится, когда переедем на настоящее приложение.</div>
   </div>
 </section>
 
 </main>
 
 <script>
-const LS='dz_journal_v1';
+const LS='dz_journal_v2'; // Обновил версию, чтобы старые данные не ломали новую программу
 const DEF={trades:[],settings:{deposit:1000,risk:1,fee:0.05}};
 let S=loadState(), editingId=null, calMonth=new Date(), dayFilter=null;
 
@@ -243,15 +240,25 @@ function loadState(){
 function saveState(){ localStorage.setItem(LS,JSON.stringify(S)); }
 
 function calc(t){
-  const margin=+t.margin||0, lev=+t.leverage||1, e=+t.entry||0, x=+t.exit;
+  const margin=+t.margin||0, lev=+t.leverage||1, e=+t.entry||0, x=+t.exit, st=+t.stop||0, tg=+t.target||0;
   const notional=margin*lev;
   const dir=t.side==='long'?1:-1;
   const fees=notional*((+t.feeRate||0)/100)*2;
   const funding=+t.funding||0;
-  if(!x||!e) return {open:true,net:0,pct:0,fees,funding,notional,gross:0};
+  
+  // Расчет R:R (Риск / Прибыль)
+  let rr = 0;
+  if(e && st && tg) {
+    const riskDist = Math.abs(e - st);
+    const rewardDist = Math.abs(tg - e);
+    if(riskDist > 0) rr = rewardDist / riskDist;
+  }
+
+  if(!x||!e) return {open:true,net:0,pct:0,fees,funding,notional,gross:0,rr};
+  
   const gross=(x-e)/e*notional*dir;
   const net=gross-fees-funding;
-  return {open:false,net,pct:margin?net/margin*100:0,fees,funding,notional,gross};
+  return {open:false,net,pct:margin?net/margin*100:0,fees,funding,notional,gross,rr};
 }
 const money=n=>(n>=0?'+':'−')+'$'+Math.abs(n).toFixed(2);
 const cls=n=>n>0?'grn':n<0?'red':'mut';
@@ -280,6 +287,8 @@ $('saveBtn').onclick=()=>{
     pair: ($('f-pair').value||'—').toUpperCase().trim(),
     side: $('f-side').value,
     entry: $('f-entry').value,
+    stop: $('f-stop').value,
+    target: $('f-target').value,
     exit: $('f-exit').value,
     leverage: $('f-lev').value||1,
     margin: $('f-margin').value,
@@ -287,7 +296,8 @@ $('saveBtn').onclick=()=>{
     funding: $('f-funding').value||0,
     strategy: $('f-strategy').value,
     emotion: $('f-emotion').value,
-    note: $('f-note').value.trim()
+    note: $('f-note').value.trim(),
+    analysis: $('f-analysis').value.trim()
   };
   if(!t.margin||!t.entry){ alert('Нужны хотя бы маржа и цена входа.'); return; }
   if(editingId){
@@ -307,19 +317,25 @@ function resetForm(){
   $('formTitle').textContent='Новая сделка';
   $('saveBtn').textContent='Сохранить';
   $('cancelEdit').style.display='none';
-  ['f-pair','f-entry','f-exit','f-margin','f-note'].forEach(i=>$(i).value='');
+  ['f-pair','f-entry','f-stop','f-target','f-exit','f-margin','f-note','f-analysis'].forEach(i=>$(i).value='');
   $('f-lev').value=1; $('f-funding').value=0; $('f-date').value=todayStr();
-  $('f-fee').value=S.settings.fee; $('preview').textContent='';
+  $('f-fee').value=S.settings.fee; $('preview').innerHTML='';
 }
 
-['f-entry','f-exit','f-lev','f-margin','f-fee','f-funding','f-side'].forEach(id=>{
+['f-entry','f-stop','f-target','f-exit','f-lev','f-margin','f-fee','f-funding','f-side'].forEach(id=>{
   $(id).addEventListener('input',()=>{
-    const c=calc({entry:$('f-entry').value,exit:$('f-exit').value,leverage:$('f-lev').value,
+    const c=calc({entry:$('f-entry').value,stop:$('f-stop').value,target:$('f-target').value,exit:$('f-exit').value,leverage:$('f-lev').value,
       margin:$('f-margin').value,feeRate:$('f-fee').value,funding:$('f-funding').value,side:$('f-side').value});
-    if(c.open){ $('preview').textContent='Сделка открыта — PnL появится после выхода.'; return; }
-    $('preview').innerHTML='Чистый PnL: <b class="'+cls(c.net)+'">'+money(c.net)+
-      '</b> ('+c.pct.toFixed(1)+'% от маржи) · комиссии $'+c.fees.toFixed(2)+
-      ' · фандинг $'+c.funding.toFixed(2);
+      
+    let html = '';
+    if(c.rr > 0) html += `Планируемый риск/прибыль: <b class="${c.rr>=2?'grn':'warn'}">1 : ${c.rr.toFixed(1)}</b><br>`;
+    
+    if(c.open){ 
+      $('preview').innerHTML = html + 'Сделка открыта — PnL появится после выхода.'; 
+      return; 
+    }
+    $('preview').innerHTML = html + 'Чистый PnL: <b class="'+cls(c.net)+'">'+money(c.net)+
+      '</b> ('+c.pct.toFixed(1)+'% от маржи)';
   });
 });
 
@@ -349,13 +365,14 @@ function renderList(){
         </div>
       </div>
       <div class="tmeta">
-        <span>вход ${t.entry}${t.exit?' → '+t.exit:''}</span>
-        <span>маржа $${(+t.margin).toFixed(2)}</span>
-        ${!c.open?`<span class="${cls(c.net)}">${c.pct.toFixed(1)}%</span>`:''}
-        <span class="tag">${t.strategy}</span>
-        <span class="tag">${t.emotion}</span>
+        <span>вход ${t.entry}</span>
+        ${t.stop?`<span class="red">стоп ${t.stop}</span>`:''}
+        ${t.target?`<span class="grn">тейк ${t.target}</span>`:''}
+        ${t.exit?`<span>выход ${t.exit}</span>`:''}
+        ${c.rr>0?`<span class="tag">R:R 1:${c.rr.toFixed(1)}</span>`:''}
       </div>
-      ${t.note?`<div class="tmeta" style="margin-top:6px;color:#a9b4c0">${esc(t.note)}</div>`:''}
+      ${t.note?`<div class="tmeta" style="margin-top:6px;color:#a9b4c0"><b>План:</b> ${esc(t.note)}</div>`:''}
+      ${t.analysis?`<div class="tmeta" style="margin-top:4px;color:#e6edf3"><b>Анализ:</b> ${esc(t.analysis)}</div>`:''}
     </div>`;
   }).join('');
 
@@ -368,9 +385,11 @@ function renderList(){
     const t=S.trades.find(x=>x.id===b.dataset.edit); if(!t) return;
     editingId=t.id;
     $('f-date').value=t.date; $('f-pair').value=t.pair; $('f-side').value=t.side;
-    $('f-strategy').value=t.strategy; $('f-entry').value=t.entry; $('f-exit').value=t.exit||'';
+    $('f-strategy').value=t.strategy; $('f-entry').value=t.entry; $('f-stop').value=t.stop||'';
+    $('f-target').value=t.target||''; $('f-exit').value=t.exit||'';
     $('f-lev').value=t.leverage; $('f-margin').value=t.margin; $('f-fee').value=t.feeRate;
     $('f-funding').value=t.funding; $('f-emotion').value=t.emotion; $('f-note').value=t.note||'';
+    $('f-analysis').value=t.analysis||'';
     $('formTitle').textContent='Редактирование сделки';
     $('saveBtn').textContent='Обновить';
     $('cancelEdit').style.display='inline-block';
@@ -418,21 +437,13 @@ $('calNext').onclick=()=>{calMonth=new Date(calMonth.getFullYear(),calMonth.getM
 function renderStats(){
   const closed=S.trades.map(t=>({t,c:calc(t)})).filter(x=>!x.c.open);
   const el=$('stats');
-  if(!closed.length){ el.innerHTML='<div class="empty" style="grid-column:1/-1">Нет закрытых сделок для статистики.</div>'; return; }
+  if(!closed.length){ el.innerHTML='<div class="empty" style="grid-column:1/-1">Нет закрытых сделок.</div>'; return; }
   const nets=closed.map(x=>x.c.net);
   const wins=nets.filter(n=>n>0), losses=nets.filter(n=>n<0);
   const total=nets.reduce((a,b)=>a+b,0);
   const wr=wins.length/closed.length*100;
   const pf=losses.length?wins.reduce((a,b)=>a+b,0)/Math.abs(losses.reduce((a,b)=>a+b,0)):Infinity;
-  const avgW=wins.length?wins.reduce((a,b)=>a+b,0)/wins.length:0;
-  const avgL=losses.length?losses.reduce((a,b)=>a+b,0)/losses.length:0;
-  const dm=dailyMap();
-  const days=Object.entries(dm).sort((a,b)=>b[1]-a[1]);
   const fees=closed.reduce((a,x)=>a+x.c.fees,0);
-
-  const sorted=closed.slice().sort((a,b)=>a.t.date<b.t.date?-1:1);
-  let mw=0,ml=0,cw=0,cl=0;
-  sorted.forEach(x=>{ if(x.c.net>0){cw++;cl=0;} else if(x.c.net<0){cl++;cw=0;} mw=Math.max(mw,cw);ml=Math.max(ml,cl); });
 
   const card=(k,v,c='')=>`<div class="stat"><div class="k">${k}</div><div class="v ${c}">${v}</div></div>`;
   el.innerHTML=
@@ -440,20 +451,12 @@ function renderStats(){
     card('Сделок',closed.length)+
     card('Win rate',wr.toFixed(1)+'%',wr>=50?'grn':'red')+
     card('Profit factor',pf===Infinity?'∞':pf.toFixed(2),pf>=1.5?'grn':pf>=1?'warn':'red')+
-    card('Средний вин',money(avgW),'grn')+
-    card('Средний луз',money(avgL),'red')+
-    card('Лучший день',days[0]?days[0][0].slice(5)+' · '+money(days[0][1]):'—','grn')+
-    card('Худший день',days.length?days[days.length-1][0].slice(5)+' · '+money(days[days.length-1][1]):'—','red')+
-    card('Серия побед',mw)+
-    card('Серия лузов',ml)+
-    card('Комиссии',money(-fees),'red')+
-    card('Ср. плечо',(closed.reduce((a,x)=>a+(+x.t.leverage||1),0)/closed.length).toFixed(1)+'x');
+    card('Комиссии',money(-fees),'red');
 }
 
 const PAIRS=['BTC/USDT','ETH/USDT','SOL/USDT','XRP/USDT','DOGE/USDT','LINK/USDT','AVAX/USDT'];
 const PATTERNS=['Нет','Двойная вершина','Двойное дно','Голова и плечи','Восходящий клин','Медвежий дивергенс','Бычий дивергенс'];
 function renderSignals(){
-  const onlyHi=$('onlyHi').checked;
   const rows=PAIRS.map(p=>{
     const rsi=Math.round(20+Math.random()*65);
     const pattern=PATTERNS[Math.floor(Math.random()*PATTERNS.length)];
@@ -465,10 +468,9 @@ function renderSignals(){
     if(news<0) risk+=Math.min(25,Math.abs(news)*30);
     risk=Math.min(100,Math.round(risk));
     return {p,rsi,pattern,news,risk};
-  }).filter(r=>!onlyHi||r.risk>=55).sort((a,b)=>b.risk-a.risk);
+  }).sort((a,b)=>b.risk-a.risk);
 
   const el=$('sigList');
-  if(!rows.length){ el.innerHTML='<div class="empty">Нет сигналов с высоким риском.</div>'; return; }
   el.innerHTML=rows.map(r=>{
     const col=r.risk>=70?'#f85149':r.risk>=45?'#d29922':'#3fb950';
     const nl=r.news<-0.2?'<span class="red">негативный</span>':r.news>0.2?'<span class="grn">позитивный</span>':'<span class="mut">нейтральный</span>';
@@ -487,17 +489,6 @@ function renderSignals(){
   }).join('');
 }
 $('refreshSig').onclick=renderSignals;
-$('onlyHi').onchange=renderSignals;
-
-$('s-dep').value=S.settings.deposit;
-$('s-risk').value=S.settings.risk;
-$('s-fee').value=S.settings.fee;
-$('saveSettings').onclick=()=>{
-  S.settings.deposit=+$('s-dep').value||1000;
-  S.settings.risk=+$('s-risk').value||1;
-  S.settings.fee=+$('s-fee').value||0.05;
-  saveState(); $('f-fee').value=S.settings.fee; alert('Сохранено');
-};
 
 function calcPos(){
   const e=+$('c-entry').value, st=+$('c-stop').value, lev=+$('c-lev').value||1;
@@ -510,22 +501,31 @@ function calcPos(){
   const margin=notional/lev;
   out.innerHTML=`Риск: <b>$${riskUsd.toFixed(2)}</b> (${S.settings.risk}% от $${S.settings.deposit})<br>
     Размер позиции: <b>$${notional.toFixed(2)}</b><br>
-    Маржа при ${lev}x: <b>$${margin.toFixed(2)}</b><br>
-    Расстояние до стопа: <b>${(dist*100).toFixed(2)}%</b>`;
+    Маржа при ${lev}x: <b>$${margin.toFixed(2)}</b>`;
 }
 ['c-entry','c-stop','c-lev'].forEach(i=>$(i).addEventListener('input',calcPos));
 
+$('s-dep').value=S.settings.deposit;
+$('s-risk').value=S.settings.risk;
+$('s-fee').value=S.settings.fee;
+$('saveSettings').onclick=()=>{
+  S.settings.deposit=+$('s-dep').value||1000;
+  S.settings.risk=+$('s-risk').value||1;
+  S.settings.fee=+$('s-fee').value||0.05;
+  saveState(); $('f-fee').value=S.settings.fee; alert('Настройки сохранены!');
+};
+
 $('exportCsv').onclick=()=>{
-  const head=['date','pair','side','entry','exit','leverage','margin','feeRate','funding','strategy','emotion','netPnl','note'];
+  const head=['date','pair','side','entry','stop','target','exit','leverage','margin','feeRate','funding','strategy','emotion','netPnl','note','analysis'];
   const rows=S.trades.map(t=>{const c=calc(t);
-    return [t.date,t.pair,t.side,t.entry,t.exit||'',t.leverage,t.margin,t.feeRate,t.funding,
-      t.strategy,t.emotion,c.open?'':c.net.toFixed(2),'"'+(t.note||'').replace(/"/g,'""')+'"'].join(',');});
+    return [t.date,t.pair,t.side,t.entry,t.stop||'',t.target||'',t.exit||'',t.leverage,t.margin,t.feeRate,t.funding,
+      t.strategy,t.emotion,c.open?'':c.net.toFixed(2),'"'+(t.note||'').replace(/"/g,'""')+'"','"'+(t.analysis||'').replace(/"/g,'""')+'"'].join(',');});
   const blob=new Blob(['\ufeff'+head.join(',')+'\n'+rows.join('\n')],{type:'text/csv'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob); a.download='journal.csv'; a.click();
 };
 $('clearAll').onclick=()=>{
-  if(!confirm('Удалить все сделки? Действие необратимо.')) return;
+  if(!confirm('Удалить все сделки?')) return;
   S.trades=[]; saveState(); renderAll();
 };
 
